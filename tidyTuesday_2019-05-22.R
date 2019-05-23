@@ -53,37 +53,75 @@ plastic_waste <- waste_vs_gdp %>%
 # Facets continents
 plot.plastic <- ggplot(plastic_waste,
              aes(x = gdp_pc_ppp, y = pw_pc, size = m_pw)) +
+  geom_point(aes(color = continent), alpha = 0.7) +
+  stat_smooth(geom = "line", method = "lm", color = "#896900", alpha = 0.3) +
+  geom_smooth(method = "lm", color = NA, alpha = 0.1) +
+  scale_x_log10(labels = scales::comma) +
+  scale_y_log10() +
+  facet_grid(. ~ continent) +
+  background_grid(major = "xy", minor = "none") +
+  ylab("Per capita plastic waste\n(kilograms per person per day)")
+#plot.plastic
+
+plot.mismanage <- ggplot(plastic_waste,
+             aes(x = gdp_pc_ppp, y = m_pw_pc, size = m_pw)) +
+  geom_point(aes(color = continent), alpha = 0.7) +
+  stat_smooth(geom = "line", method = "loess", color = "#892500", alpha = 0.3) +
+  geom_smooth(method = "loess", color = NA, alpha = 0.1) +
+  scale_x_log10(labels = scales::comma) +
+  scale_y_log10() +
+  facet_grid(. ~ continent) +
+  background_grid(major = "xy", minor = "none") +
+  xlab("GDP per capita, PPP (constant 2011)") +
+  ylab("Per capita mismanaged plastic waste\n(kilograms per person per day)")
+#plot.mismanage
+
+plot.waste <- plot_grid(plot.plastic +
+            theme(legend.position = "none",
+                  axis.title.x = element_text(color = "white"),
+                  axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank(),
+                  strip.background.x = element_blank()),
+          plot.mismanage +
+            theme(legend.position = "none",
+                  strip.text.x = element_blank()),
+          nrow = 2,
+          align = "v")
+plot.waste
+
+ggsave("plot_waste.png", width = 15, height = 10, units = "in")
+
+# test code ---------------------------------------------------------------
+
+
+# Facets continents
+plot.plastic <- ggplot(plastic_waste,
+                       aes(x = gdp_pc_ppp, y = pw_pc, size = m_pw)) +
   geom_point(alpha = 0.7) +
   geom_smooth(method = "lm", alpha = 0.2) +
   scale_x_log10(labels = scales::comma) +
   scale_y_log10() +
   facet_grid(. ~ continent) +
   background_grid(major = "xy", minor = "none") +
-  theme(legend.position = "none") 
-#plot.plastic
+  theme(legend.position = "none",
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()) 
+plot.plastic
+
+
+# # more test code --------------------------------------------------------
 
 plot.mismanage <- ggplot(plastic_waste,
-             aes(x = gdp_pc_ppp, y = m_pw_pc, size = m_pw)) +
+                         aes(x = gdp_pc_ppp, y = m_pw_pc, size = m_pw)) +
   geom_point(alpha = 0.7) +
   geom_smooth(method = "loess", alpha = 0.2) +
   scale_x_log10(labels = scales::comma) +
   scale_y_log10() +
   facet_grid(. ~ continent) +
   background_grid(major = "xy", minor = "none") +
-  theme(legend.position = "none") 
-#plot.mismanage
-
-plot_grid(plot.plastic,
-          plot.mismanage, nrow = 2, align = "v")
-
-
-# test code ---------------------------------------------------------------
-
-
-
-
-
-
+  theme(legend.position = "none",
+        strip.text.x = element_blank()) 
+plot.mismanage
 
 
 
