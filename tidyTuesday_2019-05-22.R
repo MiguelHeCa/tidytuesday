@@ -1,7 +1,10 @@
+
+# TidyTuesdays guidelines
+"https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-05-21"
+
+# Load packages
 library(tidyverse)
 library(cowplot)
-library(ggrepel)
-library(gapminder)
 library(janitor)
 library(countrycode)
 
@@ -17,17 +20,15 @@ map(list(coast_vs_waste, mismanaged_vs_gdp, waste_vs_gdp),
     ~ .x %>% drop_na() %>% distinct(Year))
 # Turns out we only have 2010
 
-# Save old names for future texts
-old_column_names <- map(list(coast_vs_waste, mismanaged_vs_gdp, waste_vs_gdp),
-                        ~ colnames(.x))
-names(old_column_names) <- ls(pattern = "_vs_")
-
 # Check if gdp columns are the same
 m_gdp <- mismanaged_vs_gdp %>% select(gdp = 5) %>% drop_na()
 
 w_gdp <- waste_vs_gdp %>% select(gdp = 5) %>% drop_na()
 
 setequal(m_gdp, w_gdp)
+
+rm(list = c("m_gdp", "w_gdp"))
+
 # indeed they are
 
 # Merge plastic and mismanagement waste, adding continents
@@ -42,88 +43,106 @@ plastic_waste <- waste_vs_gdp %>%
          gdp_pc_ppp = ends_with("international"),
          m_pw = ends_with("tonnes"),
          pw_pc = matches("capita_pl"),
-         m_pw_pc = matches("capita_mi")) %>% 
-  mutate(annual_waste = pw_pc * 365 * 1000 / 10^6,
-         waste_ratio = m_pw_pc / pw_pc * 100)
-
+         m_pw_pc = matches("capita_mi"))
 
 # plot --------------------------------------------------------------------
 
+# Set colors for size and model lines
+p_col <- c("#0080cc", "#cc0080", "#80cc00")
 
-# Facets continents
-plot.plastic <- ggplot(plastic_waste,
-             aes(x = gdp_pc_ppp, y = pw_pc, size = m_pw)) +
-  geom_point(aes(color = continent), alpha = 0.7) +
-  stat_smooth(geom = "line", method = "lm", color = "#896900", alpha = 0.3) +
-  geom_smooth(method = "lm", color = NA, alpha = 0.1) +
-  scale_x_log10(labels = scales::comma) +
-  scale_y_log10() +
-  facet_grid(. ~ continent) +
-  background_grid(major = "xy", minor = "none") +
-  ylab("Per capita plastic waste\n(kilograms per person per day)")
-#plot.plastic
-
-plot.mismanage <- ggplot(plastic_waste,
-             aes(x = gdp_pc_ppp, y = m_pw_pc, size = m_pw)) +
-  geom_point(aes(color = continent), alpha = 0.7) +
-  stat_smooth(geom = "line", method = "loess", color = "#892500", alpha = 0.3) +
-  geom_smooth(method = "loess", color = NA, alpha = 0.1) +
-  scale_x_log10(labels = scales::comma) +
-  scale_y_log10() +
-  facet_grid(. ~ continent) +
-  background_grid(major = "xy", minor = "none") +
-  xlab("GDP per capita, PPP (constant 2011)") +
-  ylab("Per capita mismanaged plastic waste\n(kilograms per person per day)")
-#plot.mismanage
-
-plot.waste <- plot_grid(plot.plastic +
-            theme(legend.position = "none",
-                  axis.title.x = element_text(color = "white"),
-                  axis.text.x = element_blank(),
-                  axis.ticks.x = element_blank(),
-                  strip.background.x = element_blank()),
-          plot.mismanage +
-            theme(legend.position = "none",
-                  strip.text.x = element_blank()),
-          nrow = 2,
-          align = "v")
-plot.waste
-
-ggsave("plot_waste.png", width = 15, height = 10, units = "in")
-
-# test code ---------------------------------------------------------------
-
-
-# Facets continents
+# Plot for plastic waste per capita
 plot.plastic <- ggplot(plastic_waste,
                        aes(x = gdp_pc_ppp, y = pw_pc, size = m_pw)) +
-  geom_point(alpha = 0.7) +
-  geom_smooth(method = "lm", alpha = 0.2) +
+  geom_point(color = p_col[1], alpha = 0.7) +
+  stat_smooth(
+    geom = "line",
+    method = "lm",
+    color = p_col[2],
+    alpha = 0.7,
+    show.legend = FALSE
+  ) +
+  geom_smooth(method = "lm",
+              color = NA,
+              alpha = 0.1,
+              show.legend = FALSE) +
   scale_x_log10(labels = scales::comma) +
   scale_y_log10() +
+  scale_size(name = "Mismanaged plastic waste (tonnes)",
+             labels = scales::comma) +
   facet_grid(. ~ continent) +
   background_grid(major = "xy", minor = "none") +
-  theme(legend.position = "none",
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank()) 
-plot.plastic
+  panel_border() +
+  labs(title = "Plastic waste per capita against GDP per capita in 2010, by continent",
+       x = "GDP per capita, PPP (constant 2011, log scale)",
+       y = "Plastic waste\n(kg per person per day, log scale)",
+       caption = "The richer the country the higher the plastic waste in all continents.")
 
-
-# # more test code --------------------------------------------------------
-
+# Plot for plastic wage mismanagement per capita
 plot.mismanage <- ggplot(plastic_waste,
                          aes(x = gdp_pc_ppp, y = m_pw_pc, size = m_pw)) +
-  geom_point(alpha = 0.7) +
-  geom_smooth(method = "loess", alpha = 0.2) +
+  geom_point(color = p_col[1], alpha = 0.7) +
+  stat_smooth(
+    geom = "line",
+    method = "loess",
+    color = p_col[3],
+    alpha = 0.7,
+    show.legend = FALSE
+  ) +
+  geom_smooth(method = "loess",
+              color = NA,
+              alpha = 0.1,
+              show.legend = FALSE) +
   scale_x_log10(labels = scales::comma) +
   scale_y_log10() +
   facet_grid(. ~ continent) +
   background_grid(major = "xy", minor = "none") +
-  theme(legend.position = "none",
-        strip.text.x = element_blank()) 
-plot.mismanage
+  panel_border() +
+  labs(title = "Plastic waste mismanagement per capita against GDP per capita in 2010 by continent",
+       x = "GDP per capita, PPP (constant 2011, log scale)",
+       y = "Mismanaged plastic waste\n(kg per person per day, log scale)",
+       caption = "Middle income countries struggle the most with waste management. However, it gets better in richer countries.")
 
+# Inner grid that contains the two plots
+plot.inner <- plot_grid(
+  plot.plastic +
+    theme(
+      legend.position = "none",
+      strip.background.x = element_blank(),
+      plot.caption = element_text(hjust = 0.5)
+    ),
+  plot.mismanage +
+    theme(
+      legend.position = "none",
+      strip.background.x = element_blank(),
+      plot.caption = element_text(hjust = 0.5)
+    ),
+  nrow = 2,
+  align = "v"
+)
 
+# Extraction of legend for the outer plot
+plot.legend <- get_legend( plot.plastic + theme(legend.position = "bottom"))
+
+plot.outer <- plot_grid(
+  plot.inner,
+  plot.legend,
+  ncol = 1,
+  nrow = 2,
+  rel_heights = c(1, .1)
+)
+
+# Gather inner and outer layers
+printed.plot <- add_sub(plot.outer,
+                        "Source: Our World in Data and R4DS' TidyTuesdays.",
+                        x = 1,
+                        hjust = 1,
+                        size = 11)
+
+ggdraw(printed.plot)
+
+ggsave("plot_waste.png", width = 20, height = 12, units = "in")
+
+gc()
 
 
 
