@@ -79,13 +79,13 @@ wc_c <- create_wordcloud(rated_countries[3])
 wc_m <- create_wordcloud(rated_countries[4])
 wc_u <- create_wordcloud(rated_countries[5])
 
-# Saved word clouds manually through RStudio given that saving it through
+# Saved word clouds manually through RStudio given that saving it by code
 # is too convoluted.
 # I tried ggwordcloud and wordcloud also, but rendering took too long and the 
-# cloud is not as aesthetically pleasing as in the wordcloud2.
-# The caveat is that making grids with wordcloud2 are a real pain, so I cheated 
-# a little bit with the final plot (I edited it elsewhere).
-# If you know any realiable method to make grids with any of these packages, 
+# cloud is not as aesthetically pleasing as in wordcloud2.
+# Caveat is that making grids with wordcloud2 are a real pain, though,
+# so I cheated a little bit with the final plot (edited it elsewhere).
+# If you know any realiable method to make grids with wordcloud or wordcloud2
 # please let me know.
 
 
