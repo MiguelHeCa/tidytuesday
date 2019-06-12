@@ -84,7 +84,7 @@ map <- ggplot() +
   theme(
     legend.position = c(0.15, 0.1),
     plot.title = element_text(hjust = 0.5),
-    plot.subtitle = element_text(hjust = 0.5, color = "gray50"), 
+    plot.subtitle = element_text(hjust = 0.5, color = "gray50", size = 14), 
     plot.caption = element_text(hjust = 0.5),
     text = element_text(family = "B612 Mono")
   ) +
