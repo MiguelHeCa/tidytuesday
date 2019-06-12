@@ -23,6 +23,90 @@ meteo <- meteorites %>%
 fallen <- meteo %>% filter(fall == "Fell")
 found <- meteo %>% filter(fall == "Found")
 
+
+# trial -------------------------------------------------------------------
+
+ggplot() +
+  geom_polygon(
+    data = world,
+    aes(x = long, y = lat, group = group),
+    fill = "#e6e6e9",
+    size = 0.1
+  ) +
+  geom_point(
+    data = fallen,
+    aes(
+      x = long,
+      y = lat,
+      size = calc_mass,
+      color = calc_mass
+    ),
+    alpha = 0.5
+  ) +
+  scale_color_distiller(
+    palette = "Reds",
+    direction = 1,
+    labels = c("0", "2.5", "5.0", "7.5", "10.0+"),
+    guide = guide_colorbar(
+      direction = "horizontal",
+      barheight = unit(3, units = "mm"),
+      barwidth = unit(60, units = "mm"),
+      title.position = "top",
+      title.hjust = 0.5,
+      label.hjust = 0.5
+    )
+  ) +
+  geom_point(
+    data = found,
+    aes(
+      x = long,
+      y = lat,
+      size = calc_mass,
+      fill = calc_mass
+    ),
+    shape = 21,
+    alpha = 0.5
+  ) +
+  scale_fill_distiller(
+    palette = "Blues",
+    direction = 1,
+    labels = c("0", "2.5", "5.0", "7.5", "10.0+"),
+    guide = guide_colorbar(
+      direction = "horizontal",
+      barheight = unit(3, units = "mm"),
+      barwidth = unit(60, units = "mm"),
+      title.position = "top",
+      title.hjust = 0.5,
+      label.hjust = 0.5
+    )
+  ) +
+  scale_size(guide = "none") +
+  annotate(
+    "text",
+    x = -134,
+    y = -30,
+    family = "B612 Mono",
+    label = "Year: {frame_time}",
+    size = 7,
+    color = "gray50",
+    fontface = "bold"
+  ) +
+  theme_void() +
+  theme(
+    legend.position = c(0.15, 0.1),
+    plot.title = element_text(hjust = 0.5),
+    plot.caption = element_text(hjust = 0.5),
+    text = element_text(family = "B612 Mono")
+  ) +
+  labs(
+    color = "Fallen mass in kilograms",
+    fill = "Found mass in kilograms",
+    title = "Fallen and found meteorites on Earth",
+    caption = "Source: NASA"
+  ) +
+  coord_map("mollweide", orientation = c(90, 0, 0))
+
+
 # Create static plot ------------------------------------------------------
 
 map <- ggplot() + 
