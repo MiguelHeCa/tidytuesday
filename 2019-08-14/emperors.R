@@ -11,7 +11,6 @@
 
 library(tidyverse)
 library(lubridate)
-library(ggthemes)
 library(tvthemes)
 
 # Get and prepare data ----------------------------------------------------
@@ -47,16 +46,13 @@ imperatorum <- emperors %>%
     )
   ) %>% 
   mutate(DOMUS = dynasty,
-         mutate(INCOGNITA = if_else(
-           is.na(ANNUS_NATALIS),
-           ANNO_MORTIS - 35,
-           NA_real_)),
+         INCOGNITA = if_else(is.na(ANNUS_NATALIS), ANNO_MORTIS - 35, NA_real_),
          NOMINE_ET_DIEM = if_else(
            !is.na(INCOGNITA),
            glue::glue("{NOMINE} (???, {round(REGNABIT_DURATIONEM, digits = 1)}) "),
            glue::glue("{NOMINE} ({round(AETATE)}, {round(REGNABIT_DURATIONEM, digits = 1)}) "),
          )) %>% 
-  select(index, NOMINE:DOMUS) %>% 
+  select(index, NOMINE:NOMINE_ET_DIEM) %>% 
   arrange(desc(index))
 
 index_domus <- emperors %>% 
@@ -67,7 +63,6 @@ index_domus <- emperors %>%
   ungroup() %>% 
   mutate(dynasty = case_when(
     dynasty == "Nerva-Antonine" ~ "Nerva-\nAntonine",
-    # dynasty == "Julio-Claudian" ~ "Julio-\nClaudian",
     TRUE ~ dynasty
   )) %>% 
   mutate(middle = (min + max)/2,
@@ -140,7 +135,7 @@ figure <- figure +
   annotate("text", label = "Wall erected in Caledonia", x = 190, y = 54, size = 3, family = "Inknut Antiqua", hjust = 0) +
   annotate("text", label = "Pax romana ends", x = 210, y = 51, size = 3, family = "Inknut Antiqua", hjust = 0) +
   annotate("text", label = "Empire's maximum extension", x = 230, y = 48, size = 3, family = "Inknut Antiqua", hjust = 0) +
-  annotate("text", label = "Granted citizenship to all free men", x = -140, y = 47, size = 3, family = "Inknut Antiqua", hjust = 0) +
+  annotate("text", label = "Granted citizenship for all free men", x = -145, y = 47, size = 3, family = "Inknut Antiqua", hjust = 0) +
   annotate("text", label = "Beginning of the Imperial crisis", x = -140, y = 43, size = 3, family = "Inknut Antiqua", hjust = 0) +
   annotate("text", label = "Year of the Six Emperors begins", x = -140, y = 42, size = 3, family = "Inknut Antiqua", hjust = 0) +
   annotate("text", label = "Captured by the Sassanid Empire", x = -120, y = 31, size = 3, family = "Inknut Antiqua", hjust = 0) +
